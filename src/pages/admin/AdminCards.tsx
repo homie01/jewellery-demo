@@ -1,0 +1,46 @@
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Copy, CreditCard, Download, RefreshCw, Search, ShieldCheck } from 'lucide-react';
+import { getCardStatus, useCards, useOrders, useStore } from '../../contexts/CommerceContext';
+import { useUI } from '../../contexts/UIContext';
+import { cardUrl, formatDate, money, useClipboard } from '../../lib/storage';
+import { Badge, Button, ButtonLink, EmptyState, Modal } from '../../components/ui';
+import DigitalBusinessCard from '../../components/DigitalBusinessCard';
+import { downloadDigitalBusinessCardPDF, downloadOrderInvoicePDF } from '../../utils/pdfGenerator';
+import { AdminPageHeading } from './Dashboard';
+
+export default function AdminCards() {
+  const { cards, revokeCard } = useCards();
+  const { orders } = useOrders();
+  const { settings } = useStore();
+  const { toast } = useUI();
+  const { copy } = useClipboard();
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('All cards');
+  const [revoke, setRevoke] = useState<string | null>(null);
+  const filtered = cards.filter((card) => (status === 'All cards' || getCardStatus(card) === status) && `${card.id} ${card.orderId} ${orders.find((order) => order.id === card.orderId)?.customer.name}`.toLowerCase().includes(search.toLowerCase()));
+  return <><AdminPageHeading eyebrow="BEAUTIFUL THINGS, LASTING RECORDS" title="Digital purchase cards" description="A considered way to preserve and protect every purchase."><ButtonLink to="/admin/orders" variant="outline">CREATE FROM AN ORDER <ArrowRight size={14} /></ButtonLink></AdminPageHeading><div className="admin-card-intro"><ShieldCheck size={25} strokeWidth={1.15} /><p>Thoughtfully connected. Carefully protected.<span>Unique card links, scannable QR codes, and passcode-gated purchase records.</span></p><span>{cards.filter((card) => getCardStatus(card) === 'Active').length} ACTIVE RECORDS</span></div><section className="admin-panel orders-table-panel"><div className="admin-order-tabs">{['All cards', 'Active', 'Expired', 'Revoked'].map((value) => <button key={value} className={status === value ? 'active' : ''} onClick={() => setStatus(value)}>{value}</button>)}</div><div className="admin-table-toolbar"><label className="admin-table-search"><Search size={16} strokeWidth={1.3} /><input aria-label="Search digital cards" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search card, order, or customer..." /></label><span className="muted text-xs">{filtered.length} records</span></div>{filtered.length ? <div className="table-scroll"><table className="admin-table"><thead><tr><th>CARD ID</th><th>ORDER</th><th>CUSTOMER</th><th>CREATED</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody>{filtered.map((card) => <tr key={card.id}><td><Link to={`/admin/cards/${card.id}`} className="order-id-link">{card.id}</Link></td><td><Link to={`/admin/orders/${card.orderId}`}>{card.orderId}</Link></td><td>{orders.find((order) => order.id === card.orderId)?.customer.name ?? 'Customer unavailable'}</td><td>{formatDate(card.createdAt)}</td><td><Badge status={getCardStatus(card)} /></td><td><div className="card-table-actions"><Link to={`/admin/cards/${card.id}`} aria-label={`View ${card.id}`}><ArrowUpRight size={17} /></Link><button aria-label={`Copy link for ${card.id}`} onClick={async () => { const success = await copy(cardUrl(card.id)); toast(success ? 'Protected card link copied.' : 'Open the card details to select and copy the link.'); }}><Copy size={14} /></button><button aria-label={`Download PDF for ${card.id}`} title="Download Digital Business Card PDF" onClick={async () => { await downloadDigitalBusinessCardPDF({ cardId: card.id, orderId: card.orderId, settings }); toast('Business card PDF downloaded.'); }}><Download size={14} /></button>{getCardStatus(card) === 'Active' && <button onClick={() => setRevoke(card.id)}>REVOKE</button>}</div></td></tr>)}</tbody></table></div> : <EmptyState title={cards.length ? 'No matching records.' : 'The beginning of a lasting record.'} description={cards.length ? 'Try another search or card status.' : 'Confirm an order, then generate its digital purchase card. Every card gets a unique QR code and a protected link.'}>{!cards.length && <ButtonLink to="/admin/orders">EXPLORE YOUR ORDERS <ArrowRight size={14} /></ButtonLink>}</EmptyState>}<div className="table-footer"><span>Showing {filtered.length} of {cards.length} digital records</span><span>OTP-protected demo access</span></div></section><p className="admin-data-note">Demo cards are stored locally. Scanned QR codes open the customer order details & invoice page.</p><Modal open={Boolean(revoke)} onClose={() => setRevoke(null)} title="Revoke this purchase card?"><div className="confirmation-dialog"><p>The QR code and protected link will no longer reveal this record. You can create a replacement card from the order.</p><div><Button variant="outline" onClick={() => setRevoke(null)}>KEEP ACTIVE</Button><Button onClick={() => { if (revoke) revokeCard(revoke); setRevoke(null); toast('Digital card revoked. Its link is no longer active.'); }}>REVOKE CARD</Button></div></div></Modal></>;
+}
+
+export function AdminCardDetails() {
+  const { id } = useParams();
+  const { cards, regenerateCard, revokeCard } = useCards();
+  const { orders } = useOrders();
+  const { settings } = useStore();
+  const { toast } = useUI();
+  const [action, setAction] = useState<'revoke' | 'regenerate' | null>(null);
+  const navigate = useNavigate();
+  const card = cards.find((entry) => entry.id === id);
+  const order = orders.find((entry) => entry.id === card?.orderId);
+  if (!card || !order) return <EmptyState title="This record isn't here." description="It may have been created in another browser's demo workspace."><ButtonLink to="/admin/cards">BACK TO DIGITAL CARDS</ButtonLink></EmptyState>;
+  const status = getCardStatus(card);
+  const confirmAction = () => {
+    if (action === 'revoke') { revokeCard(card.id); toast('Digital card revoked.'); }
+    if (action === 'regenerate') {
+      const next = regenerateCard(card.id);
+      if (next) { navigate(`/admin/cards/${next.id}`, { replace: true }); toast('A new QR and link were created. The previous link has been revoked.'); }
+    }
+    setAction(null);
+  };
+  return <><Link to="/admin/cards" className="admin-back"><ArrowLeft size={14} /> ALL DIGITAL CARDS</Link><AdminPageHeading eyebrow={status === 'Active' ? 'DIGITAL BUSINESS CARD CREATED' : 'DIGITAL PURCHASE RECORD'} title="A lasting connection." description="Your purchase card, ready for its next chapter."><Badge status={status} /></AdminPageHeading><div className="admin-card-detail-grid"><section className="admin-panel digital-card-metadata"><div className="admin-panel-heading"><div><h2>The record</h2><p>Unique to this purchase. Created with care.</p></div><CreditCard size={24} strokeWidth={1.15} /></div><dl><div><dt>CARD ID</dt><dd className="card-id-value">{card.id}</dd></div><div><dt>ORDER</dt><dd><Link to={`/admin/orders/${order.id}`}>{order.id} <ArrowUpRight size={13} /></Link></dd></div><div><dt>CUSTOMER</dt><dd>{order.customer.name}</dd></div><div><dt>PIECES</dt><dd>{order.items.map((item) => `${item.name} (x${item.quantity})`).join(', ')}</dd></div><div><dt>PURCHASE AMOUNT</dt><dd>{money(order.total)}</dd></div><div><dt>CREATED</dt><dd>{formatDate(card.createdAt, true)}</dd></div><div><dt>VALID UNTIL</dt><dd>{formatDate(card.expiresAt, true)}</dd></div><div><dt>VERIFICATION</dt><dd>6-digit demo passcode / 10-minute session</dd></div></dl><div className="record-security-note"><ShieldCheck size={18} strokeWidth={1.3} /><p>The QR link opens customer order details and invoice. Passcode 123456 is provided for secure access.</p></div><div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}><Button variant="outline" onClick={() => downloadOrderInvoicePDF(order, settings)}><Download size={14} /> DOWNLOAD ORDER INVOICE (PDF)</Button></div>{status === 'Active' && <div className="card-management-actions"><Button variant="outline" onClick={() => setAction('regenerate')}><RefreshCw size={14} /> REGENERATE QR</Button><button onClick={() => setAction('revoke')}>REVOKE CARD</button></div>}</section><section className="admin-panel admin-qr-panel"><div className="admin-panel-heading"><h2>Digital Business Card & QR Code</h2><ShieldCheck size={19} strokeWidth={1.2} /></div><DigitalBusinessCard key={card.id} cardId={card.id} orderId={order.id} /></section></div><Modal open={Boolean(action)} onClose={() => setAction(null)} title={action === 'regenerate' ? 'Create a fresh QR code?' : 'Revoke this card?'}><div className="confirmation-dialog"><p>{action === 'regenerate' ? 'A new card ID, protected link, and QR code will replace this record. The previous link will immediately become unavailable.' : 'This link and QR will no longer grant access. The purchase order itself will be kept.'}</p><div><Button variant="outline" onClick={() => setAction(null)}>KEEP AS IS</Button><Button onClick={confirmAction}>{action === 'regenerate' ? 'GENERATE NEW QR' : 'REVOKE CARD'}</Button></div></div></Modal></>;
+}

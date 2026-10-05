@@ -1,0 +1,39 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight, CheckCheck, Clock3, IndianRupee, ShoppingBag } from 'lucide-react';
+import { useCards, useOrders } from '../../contexts/CommerceContext';
+import { formatDate, money } from '../../lib/storage';
+import { Badge, ButtonLink } from '../../components/ui';
+import { CategoryChart, OrdersChart, RevenueChart } from '../../components/admin/Charts';
+
+export function AdminPageHeading({ eyebrow, title, description, children }: { eyebrow?: string; title: string; description: string; children?: React.ReactNode }) {
+  return <div className="admin-page-heading"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1><p>{description}</p></div>{children}</div>;
+}
+
+export function StatsRow() {
+  const { orders } = useOrders();
+  const paid = orders.filter((order) => order.paymentStatus === 'Paid' && order.status !== 'Cancelled');
+  const stats = [
+    { label: 'TOTAL ORDERS', value: String(orders.length).padStart(2, '0'), icon: ShoppingBag, note: 'Every beautiful beginning', to: '/admin/orders' },
+    { label: 'AWAITING CONFIRMATION', value: String(orders.filter((order) => order.status === 'Pending').length).padStart(2, '0'), icon: Clock3, note: 'A little attention needed', to: '/admin/orders?status=Pending' },
+    { label: 'CONFIRMED ORDERS', value: String(orders.filter((order) => order.status === 'Confirmed').length).padStart(2, '0'), icon: CheckCheck, note: 'Ready for their next chapter', to: '/admin/orders?status=Confirmed' },
+    { label: 'TOTAL REVENUE', value: money(paid.reduce((sum, order) => sum + order.total, 0)), icon: IndianRupee, note: 'From paid, active orders', to: '/admin/analytics' },
+  ];
+  return <div className="stats-grid">{stats.map(({ label, value, icon: Icon, note, to }) => <Link to={to} key={label} className="stat-panel"><div><span>{label}</span><Icon size={17} strokeWidth={1.3} /></div><strong>{value}</strong><p>{note}<ArrowUpRight size={12} /></p></Link>)}</div>;
+}
+
+export default function Dashboard() {
+  const { orders } = useOrders();
+  const { cards } = useCards();
+  const [days, setDays] = useState(14);
+  return <><AdminPageHeading eyebrow="A LITTLE OVERVIEW OF YOUR WORLD" title="Welcome to the atelier." description="Your pieces, their journeys, and everything in between."><div className="admin-today"><span />{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div></AdminPageHeading><StatsRow /><div className="dashboard-chart-grid"><section className="admin-panel"><div className="admin-panel-heading"><div><h2>A beautiful trajectory</h2><p>Paid revenue over time</p></div><select value={days} onChange={(event) => setDays(Number(event.target.value))} aria-label="Revenue date range"><option value={14}>Last 14 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option></select></div><RevenueChart days={days} /></section><section className="admin-panel"><div className="admin-panel-heading"><div><h2>The collection, in numbers</h2><p>Sales by category</p></div></div><CategoryChart /></section></div><section className="admin-panel recent-orders"><div className="admin-panel-heading"><div><h2>The latest chapters</h2><p>Recent orders from your community</p></div><Link to="/admin/orders" className="admin-text-link">VIEW ALL ORDERS <ArrowRight size={14} /></Link></div><div className="table-scroll"><table className="admin-table"><thead><tr><th>ORDER</th><th>CUSTOMER</th><th>PIECE</th><th>AMOUNT</th><th>STATUS</th><th /></tr></thead><tbody>{orders.slice(0, 5).map((order) => <tr key={order.id}><td><Link className="order-id-link" to={`/admin/orders/${order.id}`}>{order.id}</Link><small>{formatDate(order.date)}</small></td><td>{order.customer.name}</td><td><div className="table-product"><img src={order.items[0].image} alt="" /><span>{order.items[0].name}{order.items.length > 1 && <small>+{order.items.length - 1} more</small>}</span></div></td><td>{money(order.total)}</td><td><Badge status={order.status} /></td><td><Link to={`/admin/orders/${order.id}`} className="table-action" aria-label={`View order ${order.id}`}><ArrowUpRight size={17} /></Link></td></tr>)}</tbody></table></div></section><div className="dashboard-bottom-grid"><section className="admin-panel"><div className="admin-panel-heading"><div><h2>In good company</h2><p>Orders this week</p></div></div><OrdersChart /></section><section className="admin-panel"><div className="admin-panel-heading"><div><h2>Notes from the atelier</h2><p>Your recent activity</p></div></div><div className="activity-list">{cards.slice(0, 2).map((card) => <Link key={card.id} to={`/admin/cards/${card.id}`}><span className="activity-dot" /><div><strong>A digital record was created</strong><p>{card.id}</p></div><small>{formatDate(card.createdAt)}</small></Link>)}{orders.slice(0, 3).map((order) => <Link key={order.id} to={`/admin/orders/${order.id}`}><span className="activity-dot" /><div><strong>{order.customer.name} placed an order</strong><p>{order.items[0].name}</p></div><small>{formatDate(order.date)}</small></Link>)}</div><ButtonLink to="/admin/cards" variant="text" className="activity-link">EXPLORE DIGITAL PURCHASE CARDS <ArrowRight size={14} /></ButtonLink></section></div><p className="admin-data-note">All figures are calculated from locally stored demo orders, including purchases made in the storefront.</p></>;
+}
+
+export function Analytics() {
+  const [days, setDays] = useState(30);
+  const { orders } = useOrders();
+  const active = orders.filter((order) => order.status !== 'Cancelled');
+  const total = active.reduce((sum, order) => sum + order.total, 0);
+  const uniqueCustomers = new Set(active.map((order) => order.customer.email)).size;
+  return <><AdminPageHeading eyebrow="THOUGHTFUL INSIGHTS" title="A clearer picture." description="The stories your numbers are telling."><select className="admin-select" aria-label="Analytics period" value={days} onChange={(event) => setDays(Number(event.target.value))}><option value={14}>Last 14 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option></select></AdminPageHeading><StatsRow /><section className="admin-panel analytics-revenue"><div className="admin-panel-heading"><div><h2>Revenue, considered</h2><p>Paid order revenue over the last {days} days</p></div><span className="chart-key"><span /> PAID REVENUE</span></div><RevenueChart days={days} /></section><div className="dashboard-chart-grid"><section className="admin-panel"><div className="admin-panel-heading"><div><h2>Every order, a new story</h2><p>Order volume in the last 7 days</p></div></div><OrdersChart /></section><section className="admin-panel"><div className="admin-panel-heading"><div><h2>What they love</h2><p>All-time sales by category</p></div></div><CategoryChart /></section></div><div className="analytics-insights"><div><p className="eyebrow">AVERAGE ORDER VALUE</p><strong>{money(active.length ? total / active.length : 0)}</strong><p>A considered investment in something lasting.</p></div><div><p className="eyebrow">YOUR COMMUNITY</p><strong>{uniqueCustomers}</strong><p>Unique customers with a little Aurel in their lives.</p></div><div><p className="eyebrow">PIECES CHERISHED</p><strong>{active.reduce((sum, order) => sum + order.items.reduce((quantity, item) => quantity + item.quantity, 0), 0)}</strong><p>Individual pieces from non-cancelled orders.</p></div></div><p className="admin-data-note">KPI totals and category shares are all-time. Revenue respects the selected period. All data is from this browser's demo orders.</p></>;
+}
