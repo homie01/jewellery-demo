@@ -1,4 +1,6 @@
 {
+  "buildCommand": "tsc && npx vite build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
