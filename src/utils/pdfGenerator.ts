@@ -16,27 +16,73 @@ interface GenerateCardOptions {
  * NO OTHER DETAILS (No order items, customer details, or prices).
  */
 export async function downloadDigitalBusinessCardPDF({ cardId, settings, elementId }: GenerateCardOptions): Promise<void> {
-  const targetElement = elementId ? document.getElementById(elementId) : null;
+  const frontElement = document.getElementById(`idgl-front-node-${cardId}`);
+  const backElement = document.getElementById(`idgl-back-node-${cardId}`);
+  const fallbackTarget = elementId ? document.getElementById(elementId) : null;
 
-  if (targetElement) {
+  if (frontElement && backElement) {
     try {
-      const canvas = await html2canvas(targetElement, {
-        scale: 4, // Ultra crisp resolution for QR code scanning
+      const frontCanvas = await html2canvas(frontElement, {
+        scale: 4, // 4x ultra high resolution
         useCORS: true,
-        backgroundColor: '#fffdf9',
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const backCanvas = await html2canvas(backElement, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const frontImg = frontCanvas.toDataURL('image/png', 1.0);
+      const backImg = backCanvas.toDataURL('image/png', 1.0);
+
+      const cardWidth = 88.9;
+      const cardHeight = (frontCanvas.height * cardWidth) / frontCanvas.width;
+
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: [cardWidth, cardHeight],
+      });
+
+      // PAGE 1: Front Cover of Card (Full resolution, 0 cropping)
+      pdf.addImage(frontImg, 'PNG', 0, 0, cardWidth, cardHeight);
+
+      // PAGE 2: Back Certificate Report of Card (Full resolution, 0 cropping)
+      pdf.addPage([cardWidth, cardHeight], 'landscape');
+      pdf.addImage(backImg, 'PNG', 0, 0, cardWidth, cardHeight);
+
+      pdf.save(`IDGL-Certificate-Card-${cardId}.pdf`);
+      return;
+    } catch (err) {
+      console.warn('HTML canvas dual-page export failed:', err);
+    }
+  }
+
+  if (fallbackTarget) {
+    try {
+      const canvas = await html2canvas(fallbackTarget, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: '#ffffff',
         logging: false,
       });
 
       const imgData = canvas.toDataURL('image/png', 1.0);
-      // Standard Business Card dimensions: 3.5in x 2in (88.9mm x 50.8mm)
+      const imgWidth = 88.9;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
-        format: [88.9, 50.8],
+        format: [imgWidth, imgHeight],
       });
 
-      pdf.addImage(imgData, 'PNG', 0, 0, 88.9, 50.8);
-      pdf.save(`Aurel-BusinessCard-${cardId}.pdf`);
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`IDGL-Certificate-Card-${cardId}.pdf`);
       return;
     } catch (err) {
       console.warn('HTML canvas export failed, falling back to vector PDF generation:', err);

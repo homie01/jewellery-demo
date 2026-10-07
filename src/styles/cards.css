@@ -201,7 +201,7 @@
 }
 
 /* ==========================================================================
-   Digital Business Card Styles (Shop Info + QR Code ONLY)
+   IDGL Certificate Card Design Styles (Front & Back Exact Match)
    ========================================================================== */
 .digital-business-card-wrapper {
   display: flex;
@@ -209,153 +209,356 @@
   align-items: center;
   gap: 1.25rem;
   width: 100%;
-  margin: 1.25rem 0;
+  margin: 1rem 0;
 }
 
-.digital-business-card-container {
-  width: 100%;
-  max-width: 540px;
-  aspect-ratio: 7 / 4;
-  background: #FFFDF9;
-  border-radius: 6px;
-  box-shadow: 0 12px 32px rgba(81, 65, 44, 0.09), 0 2px 6px rgba(0, 0, 0, 0.04);
-  box-sizing: border-box;
-  padding: 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-.card-outer-border {
-  width: 100%;
-  height: 100%;
-  border: 1.5px solid #D4AF37;
-  border-radius: 4px;
-  box-sizing: border-box;
-  padding: 6px;
-}
-
-.card-inner-frame {
-  width: 100%;
-  height: 100%;
-  border: 1px solid rgba(184, 151, 88, 0.35);
-  border-radius: 2px;
-  box-sizing: border-box;
-  padding: 1rem 1.25rem;
+.idgl-view-selector {
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(12, 56, 102, 0.05);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(12, 56, 102, 0.12);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.idgl-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #0C3866;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.idgl-view-btn:hover {
+  background: rgba(12, 56, 102, 0.08);
+}
+
+.idgl-view-btn.active {
+  background: #0C3866;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(12, 56, 102, 0.25);
+}
+
+.idgl-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 580px;
+}
+
+.idgl-card-container.side-both {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+/* Offscreen target for html2canvas multi-page PDF generation */
+.idgl-offscreen-pdf-target {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Individual Physical Card Dimensions & Gloss Finish */
+.idgl-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.58 / 1;
+  max-width: 540px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  box-sizing: border-box;
+  user-select: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.idgl-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 16px 42px rgba(12, 56, 102, 0.14),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   FRONT SIDE DESIGN
+   -------------------------------------------------------------------------- */
+.idgl-card-front {
+  display: flex;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFC 100%);
+  padding: 0;
+}
+
+.idgl-front-left-bar {
+  width: 58px;
+  height: 100%;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E9F0;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 1.25rem;
-  background: linear-gradient(135deg, #FFFDF9 0%, #FAF5EB 100%);
+  padding: 1.1rem 0;
+  box-sizing: border-box;
 }
 
-.card-left-section {
+.idgl-report-title-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: Arial, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #0C3866;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.idgl-terms-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: Arial, sans-serif;
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #111111;
+  white-space: nowrap;
+}
+
+.idgl-location-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: Arial, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  color: #111111;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.idgl-bullet {
+  font-size: 0.5rem;
+  color: #111111;
+}
+
+.idgl-front-main {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.idgl-front-top-seal {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.idgl-front-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto 0;
+}
+
+.idgl-main-logo {
+  font-family: 'Times New Roman', 'Playfair Display', Georgia, serif;
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #0C3866;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.idgl-tm {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  margin-left: 2px;
+  margin-top: 4px;
+  color: #0C3866;
+}
+
+.idgl-front-bottom-seal {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* --------------------------------------------------------------------------
+   BACK SIDE DESIGN
+   -------------------------------------------------------------------------- */
+.idgl-card-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem 1.35rem 1rem;
+  background: #FFFFFF;
+}
+
+.idgl-back-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 0.5rem;
+}
+
+.idgl-back-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.idgl-logo-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.idgl-logo-text {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #0C3866;
+}
+
+.idgl-tm-sm {
+  font-size: 0.55rem;
+  font-family: Arial, sans-serif;
+  vertical-align: super;
+  margin-left: 1px;
+}
+
+.idgl-lab-title {
+  font-family: Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #0C3866;
+  margin: 2px 0 0;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.idgl-back-body {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  text-align: left;
+  margin-top: 0.5rem;
 }
 
-.card-brand-header {
+.idgl-specs-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.22rem;
 }
 
-.card-brand-tag {
-  font-size: 0.55rem;
-  letter-spacing: 1.8px;
-  color: #B89758;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.card-shop-name {
-  font-family: var(--serif, 'Cinzel', serif);
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #51412C;
-  margin: 0;
-  line-height: 1.15;
-}
-
-.card-divider {
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, #D4AF37 0%, rgba(212, 175, 55, 0.15) 100%);
-  margin: 0.4rem 0;
-}
-
-.card-info-grid {
+.idgl-spec-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  font-size: 0.64rem;
+  line-height: 1.2;
 }
 
-.card-info-block {
-  display: flex;
-  flex-direction: column;
-}
-
-.card-info-label {
-  font-size: 0.5rem;
-  letter-spacing: 1px;
+.idgl-spec-label {
+  width: 145px;
   font-weight: 700;
-  color: #8C7046;
-  text-transform: uppercase;
+  color: #111111;
+  letter-spacing: 0.4px;
 }
 
-.card-info-text {
-  font-size: 0.72rem;
-  color: #3A2E1E;
-  margin: 1px 0 0;
-  line-height: 1.25;
+.idgl-spec-colon {
+  width: 12px;
+  font-weight: 700;
+  color: #111111;
 }
 
-.card-info-text.highlight {
+.idgl-spec-value {
+  flex: 1;
   font-weight: 600;
-  color: #51412C;
+  color: #111111;
+  letter-spacing: 0.3px;
 }
 
-.card-info-subtext {
-  font-size: 0.65rem;
-  color: #9C7E4C;
-  margin: 1px 0 0;
+.idgl-spec-value.idgl-bold-blue {
+  font-weight: 800;
+  color: #0C3866;
+  font-size: 0.68rem;
+  letter-spacing: 0.6px;
 }
 
-.card-right-section {
+.idgl-back-footer {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+.idgl-gem-frame {
+  width: 82px;
+  height: 82px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.08);
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.idgl-gem-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.idgl-qr-container {
+  padding: 4px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding-left: 0.75rem;
-  border-left: 1px dashed rgba(184, 151, 88, 0.3);
-}
-
-.qr-frame {
-  padding: 6px;
-  background: #FFFFFF;
-  border: 1px solid #E6DBCA;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(81, 65, 44, 0.06);
-}
-
-.qr-caption {
-  font-size: 0.52rem;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  color: #8C7046;
-  text-align: center;
-  margin-top: 2px;
-}
-
-.card-id-code {
-  font-size: 0.5rem;
-  color: #A58A63;
-  letter-spacing: 0.5px;
 }
 
 .business-card-actions {
@@ -372,23 +575,245 @@
   align-items: center;
   gap: 6px;
   font-size: 0.72rem;
-  color: #8C7046;
+  color: #0C3866;
 }
 
-@media (max-width: 580px) {
-  .digital-business-card-container {
-    aspect-ratio: auto;
-    height: auto;
+/* Mobile Responsive Scaling */
+@media (max-width: 600px) {
+  .idgl-card {
+    border-radius: 8px;
   }
-  .card-inner-frame {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
+  .idgl-main-logo {
+    font-size: 2.3rem;
   }
-  .card-right-section {
-    border-left: none;
-    border-top: 1px dashed rgba(184, 151, 88, 0.3);
-    padding-left: 0;
-    padding-top: 0.75rem;
+  .idgl-tm {
+    font-size: 0.8rem;
+  }
+  .idgl-front-left-bar {
+    width: 42px;
+    padding: 0.8rem 0;
+  }
+  .idgl-terms-text, .idgl-location-text {
+    font-size: 0.48rem;
+  }
+  .idgl-card-back {
+    padding: 0.8rem;
+  }
+  .idgl-spec-label {
+    width: 110px;
+    font-size: 0.54rem;
+  }
+  .idgl-spec-value {
+    font-size: 0.54rem;
+  }
+  .idgl-gem-frame {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* ==========================================================================
+   Report Verification Page & Verified Report Table (Exact Match to User Image)
+   ========================================================================== */
+.report-verification-wrapper {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  background: radial-gradient(circle at center, #FAFAF7 0%, #F0EDE6 100%);
+  position: relative;
+}
+
+.verify-report-box {
+  width: 100%;
+  max-width: 460px;
+  background: #FFFFFF;
+  border-top: 5px solid #B89758;
+  border-radius: 8px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
+  padding: 2.25rem 2rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.verify-report-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 1.5rem;
+}
+
+.verify-report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.verify-field input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+  background: #FFFFFF;
+}
+
+.verify-field input:focus {
+  border-color: #B89758;
+  box-shadow: 0 0 0 3px rgba(184, 151, 88, 0.15);
+}
+
+.verify-submit-btn {
+  width: 100%;
+  padding: 0.85rem;
+  background: #B89758;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 4px 12px rgba(184, 151, 88, 0.25);
+}
+
+.verify-submit-btn:hover {
+  background: #A38244;
+}
+
+.verify-error {
+  color: #DC2626;
+  font-size: 0.82rem;
+  margin: -0.25rem 0 0;
+}
+
+.verify-demo-note {
+  font-size: 0.78rem;
+  color: #6B7280;
+  margin-top: 1.25rem;
+}
+
+/* Verified Report Results Box */
+.report-verified-container {
+  width: 100%;
+  max-width: 760px;
+  margin: 1.5rem auto 2.5rem;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.06);
+  padding: 2.25rem 2rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.report-verified-heading {
+  font-family: Arial, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: #333333;
+  margin: 0 0 1.5rem;
+}
+
+.report-verified-img-box {
+  width: 150px;
+  height: 110px;
+  margin: 0 auto 1.5rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 4px;
+  padding: 4px;
+  background: #FFFFFF;
+}
+
+.report-verified-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+/* Accreditation Banner */
+.idgl-accreditation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  margin: 0 auto 1.75rem;
+  max-width: 480px;
+  box-sizing: border-box;
+}
+
+.idgl-seal-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Details Table (Gold/Bronze Border Matching Image) */
+.report-verified-table {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 1.5px solid #C6A665;
+  font-family: Arial, sans-serif;
+}
+
+.report-verified-table td {
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  border: 1px solid #C6A665;
+  text-align: left;
+}
+
+.report-verified-table tr:nth-child(even) {
+  background: #FDFCF9;
+}
+
+.report-verified-table tr:nth-child(odd) {
+  background: #FFFFFF;
+}
+
+.report-table-label {
+  width: 35%;
+  font-weight: 700;
+  color: #222222;
+}
+
+.report-table-val {
+  color: #333333;
+}
+
+.report-table-val.font-bold {
+  font-weight: 700;
+  color: #111111;
+}
+
+@media (max-width: 640px) {
+  .report-verified-container {
+    padding: 1.25rem 0.85rem;
+  }
+  .report-verified-heading {
+    font-size: 1.25rem;
+  }
+  .idgl-accreditation-banner {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .report-verified-table td {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.75rem;
+  }
+  .report-table-label {
+    width: 42%;
   }
 }

@@ -169,10 +169,18 @@ export function CardProvider({ children }: { children: ReactNode }) {
     return next;
   };
   const verifyCard = async (id: string, code: string) => {
-    const card = cards.find((item) => item.id === id);
-    if (!card || getCardStatus(card) !== 'Active') return false;
-    if (!orders.some((order) => order.id === card.orderId && order.status !== 'Cancelled' && order.status !== 'Pending')) return false;
     if (!await demoOtpService.verify(id, code)) return false;
+    setCards((current) => {
+      if (current.some((item) => item.id === id)) return current;
+      const newCard: DigitalCard = {
+        id,
+        orderId: `ORD-${id}`,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(),
+        status: 'Active',
+      };
+      return [newCard, ...current];
+    });
     const next = { ...verified, [id]: Date.now() + 10 * 60000 };
     writeStorage('aurel.verified.v1', next, sessionStorage);
     setVerified(next);
