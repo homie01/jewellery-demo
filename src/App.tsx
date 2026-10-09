@@ -1,5 +1,5 @@
 import { Component, Suspense, lazy, type ErrorInfo, type ReactNode } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { CommerceProviders } from './contexts/CommerceContext';
 import { UIProvider } from './contexts/UIContext';
@@ -27,6 +27,7 @@ const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Analytics = lazy(() => import('./pages/admin/Dashboard').then((module) => ({ default: module.Analytics })));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminOrderDetails = lazy(() => import('./pages/admin/AdminOrders').then((module) => ({ default: module.AdminOrderDetails })));
+const AdminCreateOrder = lazy(() => import('./pages/admin/AdminCreateOrder'));
 const AdminCards = lazy(() => import('./pages/admin/AdminCards'));
 const AdminCardDetails = lazy(() => import('./pages/admin/AdminCards').then((module) => ({ default: module.AdminCardDetails })));
 const AdminProducts = lazy(() => import('./pages/admin/Workspace').then((module) => ({ default: module.AdminProducts })));
@@ -48,7 +49,8 @@ function RouteFallback() { return <div className="route-loading" role="status"><
 export default function App() {
   return <AppErrorBoundary><BrowserRouter><MotionConfig reducedMotion="user"><UIProvider><AuthProvider><CommerceProviders><RouteMetadata /><SmoothScroll /><Preloader /><Suspense fallback={<RouteFallback />}><Routes>
     <Route element={<StoreLayout />}>
-      <Route index element={<Home />} />
+      <Route index element={<Navigate to="/admin" replace />} />
+      <Route path="home" element={<Home />} />
       <Route path="shop" element={<Shop />} />
       <Route path="product/:id" element={<Product />} />
       <Route path="cart" element={<CartPage />} />
@@ -67,6 +69,7 @@ export default function App() {
       <Route index element={<Dashboard />} />
       <Route path="login" element={<Dashboard />} />
       <Route path="orders" element={<AdminOrders />} />
+      <Route path="orders/new" element={<AdminCreateOrder />} />
       <Route path="orders/:id" element={<AdminOrderDetails />} />
       <Route path="cards" element={<AdminCards />} />
       <Route path="cards/:id" element={<AdminCardDetails />} />

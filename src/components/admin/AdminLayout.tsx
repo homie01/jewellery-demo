@@ -37,7 +37,7 @@ function SidebarContent({ close }: { close?: () => void }) {
   const { orders } = useOrders();
   const { signOut } = useAuth();
   const pending = orders.filter((order) => order.status === 'Pending').length;
-  return <><div className="admin-brand"><Logo /><span>THE ATELIER</span></div><p className="admin-nav-label">WORKSPACE</p><nav aria-label="Admin navigation">{adminLinks.map(({ to, label, icon: Icon }) => <NavLink to={to} end={to === '/admin'} onClick={close} key={to} className={({ isActive }) => isActive ? 'active' : ''}><Icon size={17} strokeWidth={1.45} /><span>{label}</span>{label === 'Orders' && pending > 0 && <small>{pending}</small>}</NavLink>)}</nav><div className="admin-sidebar-bottom"><Link to="/" onClick={close}><ArrowUpRight size={16} /> Visit the storefront</Link><button onClick={() => { close?.(); signOut(); }}><LogOut size={15} /> Sign out</button><p><span /> FRONTEND DEMO WORKSPACE</p></div></>;
+  return <><div className="admin-brand"><Logo /><span>THE ATELIER</span></div><p className="admin-nav-label">WORKSPACE</p><nav aria-label="Admin navigation">{adminLinks.map(({ to, label, icon: Icon }) => <NavLink to={to} end={to === '/admin'} onClick={close} key={to} className={({ isActive }) => isActive ? 'active' : ''}><Icon size={17} strokeWidth={1.45} /><span>{label}</span>{label === 'Orders' && pending > 0 && <small>{pending}</small>}</NavLink>)}</nav><div className="admin-sidebar-bottom"><button onClick={() => { close?.(); signOut(); }}><LogOut size={15} /> Sign out</button><p><span /> FRONTEND DEMO WORKSPACE</p></div></>;
 }
 
 export default function AdminLayout() {

@@ -69,11 +69,11 @@ function AccreditationSealsBanner() {
       {/* ISO Seal */}
       <div className="idgl-seal-item">
         <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="46" stroke="#0C3866" strokeWidth="3.5" fill="#FFFFFF" />
-          <circle cx="50" cy="50" r="40" stroke="#0C3866" strokeWidth="1" fill="none" />
-          <CurvedTextTop text="CERTIFIED" radius={34} startAngle={-45} endAngle={45} fontSize={6.5} fill="#0C3866" />
-          <CurvedTextBottom text="COMPANY" radius={34} startAngle={135} endAngle={225} fontSize={6} fill="#0C3866" />
-          <circle cx="50" cy="50" r="24" fill="#0C3866" />
+          <circle cx="50" cy="50" r="46" stroke="#081C2D" strokeWidth="3.5" fill="#FFFFFF" />
+          <circle cx="50" cy="50" r="40" stroke="#081C2D" strokeWidth="1" fill="none" />
+          <CurvedTextTop text="CERTIFIED" radius={34} startAngle={-45} endAngle={45} fontSize={6.5} fill="#081C2D" />
+          <CurvedTextBottom text="COMPANY" radius={34} startAngle={135} endAngle={225} fontSize={6} fill="#081C2D" />
+          <circle cx="50" cy="50" r="24" fill="#081C2D" />
           <text x="50" y="48" fontSize="12" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#FFFFFF" textAnchor="middle">
             ISO
           </text>
@@ -86,11 +86,11 @@ function AccreditationSealsBanner() {
       {/* IAF Seal */}
       <div className="idgl-seal-item">
         <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="46" stroke="#0C3866" strokeWidth="3.5" fill="#FFFFFF" />
-          <circle cx="50" cy="50" r="40" stroke="#0C3866" strokeWidth="1" strokeDasharray="2 2" fill="none" />
-          <CurvedTextTop text="MEMBER OF MULTILATERAL" radius={34} startAngle={-75} endAngle={75} fontSize={5.2} fill="#0C3866" />
-          <CurvedTextBottom text="RECOGNITION ARRANGEMENT" radius={34} startAngle={105} endAngle={255} fontSize={4.6} fill="#0C3866" />
-          <circle cx="50" cy="50" r="23" fill="#0C3866" />
+          <circle cx="50" cy="50" r="46" stroke="#081C2D" strokeWidth="3.5" fill="#FFFFFF" />
+          <circle cx="50" cy="50" r="40" stroke="#081C2D" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+          <CurvedTextTop text="MEMBER OF MULTILATERAL" radius={34} startAngle={-75} endAngle={75} fontSize={5.2} fill="#081C2D" />
+          <CurvedTextBottom text="RECOGNITION ARRANGEMENT" radius={34} startAngle={105} endAngle={255} fontSize={4.6} fill="#081C2D" />
+          <circle cx="50" cy="50" r="23" fill="#081C2D" />
           <text x="50" y="56" fontSize="17" fontFamily="'Times New Roman', serif" fontWeight="bold" fill="#FFFFFF" textAnchor="middle">
             IAF
           </text>
@@ -100,14 +100,14 @@ function AccreditationSealsBanner() {
       {/* IAS Seal */}
       <div className="idgl-seal-item">
         <svg width="105" height="64" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="2" width="156" height="96" rx="6" fill="#FFFFFF" stroke="#007A33" strokeWidth="3" />
-          <text x="80" y="52" fontSize="38" fontFamily="Arial, sans-serif" fontWeight="900" fill="#007A33" textAnchor="middle">
+          <rect x="2" y="2" width="156" height="96" rx="6" fill="#FFFFFF" stroke="#1F7A63" strokeWidth="3" />
+          <text x="80" y="52" fontSize="38" fontFamily="Arial, sans-serif" fontWeight="900" fill="#1F7A63" textAnchor="middle">
             IAS
           </text>
-          <text x="80" y="73" fontSize="8.5" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#007A33" textAnchor="middle" letterSpacing="0.5">
+          <text x="80" y="73" fontSize="8.5" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#1F7A63" textAnchor="middle" letterSpacing="0.5">
             INTERNATIONAL
           </text>
-          <text x="80" y="86" fontSize="7.5" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#007A33" textAnchor="middle" letterSpacing="0.4">
+          <text x="80" y="86" fontSize="7.5" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#1F7A63" textAnchor="middle" letterSpacing="0.4">
             ACCREDITATION SERVICE®
           </text>
         </svg>
@@ -347,7 +347,7 @@ export function VerifiedCard() {
 
       {/* IDGL Certificate Physical Card View */}
       <section style={{ margin: '2.5rem 0' }}>
-        <DigitalBusinessCard cardId={card.id} orderId={order.id} />
+        <DigitalBusinessCard cardId={card.id} orderId={order.id} showSelector={false} showActions={false} />
       </section>
 
       {/* Purchase Invoice & Order Section */}
@@ -408,7 +408,7 @@ export function VerifiedCard() {
               <a href={window.location.origin}>{window.location.host}</a>
             </div>
             <div>
-              <QRCodeSVG value={cardUrl(card.id)} size={96} marginSize={4} level="M" bgColor="#fffdf9" fgColor="#776140" title="Scan to verify record" />
+              <QRCodeSVG value={cardUrl(card.id)} size={96} marginSize={4} level="M" bgColor="#FFFFFF" fgColor="#081C2D" title="Scan to verify record" />
               <span>SCAN TO VERIFY</span>
             </div>
           </section>
@@ -421,7 +421,7 @@ export function VerifiedCard() {
       </article>
 
       <div className="verified-download-toolbar" style={{ display: 'flex', justifyContent: 'center', margin: '1.75rem 0 1rem' }}>
-        <Button variant="primary" onClick={() => downloadOrderInvoicePDF(order, settings)}>
+        <Button variant="primary" style={{ backgroundColor: '#1F7A63', borderColor: '#1F7A63', color: '#FFFFFF' }} onClick={() => downloadOrderInvoicePDF(order, settings)}>
           <Download size={15} /> DOWNLOAD OFFICIAL INVOICE (PDF)
         </Button>
       </div>

@@ -53,10 +53,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 }
 
 type NewOrder = { customer: Customer; items: CartItem[]; paymentMethod: PaymentMethod; deliveryMethod: 'Standard' | 'Express' };
+export type NewManualOrder = {
+  customer: Customer;
+  items: Array<{ productId: string; name: string; image: string; price: number; quantity: number; size: string }>;
+  paymentMethod: PaymentMethod;
+  paymentStatus: 'Paid' | 'Pending';
+  status: OrderStatus;
+  deliveryMethod: 'Standard' | 'Express';
+  owner?: string;
+};
+
 interface OrderValue {
   orders: Order[];
   customerOrders: Order[];
   createOrder: (data: NewOrder) => Order;
+  createManualOrder: (data: NewManualOrder) => Order;
   confirmOrder: (id: string) => void;
   updateStatus: (id: string, status: OrderStatus) => void;
   markPaid: (id: string) => void;
@@ -88,10 +99,33 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     writeStorage('aurel.latestOrder', order.id);
     return order;
   }, [orders, catalog, setOrders]);
+  const createManualOrder = useCallback((data: NewManualOrder): Order => {
+    if (data.items.length === 0) throw new Error('Please select at least one piece for the order.');
+    const subtotal = data.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shipping = data.deliveryMethod === 'Express' ? 499 : 0;
+    const sequence = Math.max(125, ...orders.map((order) => Number(order.id.split('-').pop()) || 0)) + 1;
+    const order: Order = {
+      id: `ORD-${new Date().getFullYear()}-${String(sequence).padStart(5, '0')}`,
+      customer: data.customer,
+      items: data.items,
+      subtotal,
+      shipping,
+      total: subtotal + shipping,
+      date: new Date().toISOString(),
+      paymentMethod: data.paymentMethod,
+      paymentStatus: data.paymentStatus,
+      status: data.status,
+      deliveryMethod: data.deliveryMethod,
+      owner: data.owner || 'atelier_admin',
+    };
+    setOrders((current) => [order, ...current]);
+    writeStorage('aurel.latestOrder', order.id);
+    return order;
+  }, [orders, setOrders]);
   const updateStatus = useCallback((id: string, status: OrderStatus) => setOrders((current) => current.map((order) => order.id === id ? { ...order, status } : order)), [setOrders]);
   const confirmOrder = useCallback((id: string) => updateStatus(id, 'Confirmed'), [updateStatus]);
   const markPaid = useCallback((id: string) => setOrders((current) => current.map((order) => order.id === id ? { ...order, paymentStatus: 'Paid' } : order)), [setOrders]);
-  const value = useMemo(() => ({ orders, customerOrders: orders.filter((order) => order.owner === 'customer'), createOrder, confirmOrder, updateStatus, markPaid }), [orders, createOrder, confirmOrder, updateStatus, markPaid]);
+  const value = useMemo(() => ({ orders, customerOrders: orders.filter((order) => order.owner === 'customer'), createOrder, createManualOrder, confirmOrder, updateStatus, markPaid }), [orders, createOrder, createManualOrder, confirmOrder, updateStatus, markPaid]);
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;
 }
 

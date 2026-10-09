@@ -11,11 +11,12 @@ interface DigitalBusinessCardProps {
   cardId: string;
   orderId?: string;
   showActions?: boolean;
+  showSelector?: boolean;
   className?: string;
 }
 
 // Helper for curved top SVG text (canvas-safe, no textPath)
-function CurvedTextTop({ text, radius = 35, startAngle = -75, endAngle = 75, fontSize = 5.2, fill = "#0C3866" }: { text: string; radius?: number; startAngle?: number; endAngle?: number; fontSize?: number; fill?: string }) {
+function CurvedTextTop({ text, radius = 35, startAngle = -75, endAngle = 75, fontSize = 5.2, fill = "#081C2D" }: { text: string; radius?: number; startAngle?: number; endAngle?: number; fontSize?: number; fill?: string }) {
   const chars = text.split('');
   const step = (endAngle - startAngle) / Math.max(chars.length - 1, 1);
   return (
@@ -43,7 +44,7 @@ function CurvedTextTop({ text, radius = 35, startAngle = -75, endAngle = 75, fon
 }
 
 // Helper for curved bottom SVG text (canvas-safe, no textPath)
-function CurvedTextBottom({ text, radius = 35, startAngle = 105, endAngle = 255, fontSize = 4.8, fill = "#0C3866" }: { text: string; radius?: number; startAngle?: number; endAngle?: number; fontSize?: number; fill?: string }) {
+function CurvedTextBottom({ text, radius = 35, startAngle = 105, endAngle = 255, fontSize = 4.8, fill = "#081C2D" }: { text: string; radius?: number; startAngle?: number; endAngle?: number; fontSize?: number; fill?: string }) {
   const chars = text.split('');
   const step = (endAngle - startAngle) / Math.max(chars.length - 1, 1);
   return (
@@ -74,11 +75,11 @@ function CurvedTextBottom({ text, radius = 35, startAngle = 105, endAngle = 255,
 function IAFSeal({ size = 52 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="idgl-seal-svg">
-      <circle cx="50" cy="50" r="46" stroke="#0C3866" strokeWidth="3.5" fill="#FFFFFF" />
-      <circle cx="50" cy="50" r="40" stroke="#0C3866" strokeWidth="1" strokeDasharray="2 2" fill="none" />
-      <CurvedTextTop text="MEMBER OF MULTILATERAL" radius={34} startAngle={-75} endAngle={75} fontSize={5.2} fill="#0C3866" />
-      <CurvedTextBottom text="RECOGNITION ARRANGEMENT" radius={34} startAngle={105} endAngle={255} fontSize={4.6} fill="#0C3866" />
-      <circle cx="50" cy="50" r="23" fill="#0C3866" />
+      <circle cx="50" cy="50" r="46" stroke="#081C2D" strokeWidth="3.5" fill="#FFFFFF" />
+      <circle cx="50" cy="50" r="40" stroke="#081C2D" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+      <CurvedTextTop text="MEMBER OF MULTILATERAL" radius={34} startAngle={-75} endAngle={75} fontSize={5.2} fill="#081C2D" />
+      <CurvedTextBottom text="RECOGNITION ARRANGEMENT" radius={34} startAngle={105} endAngle={255} fontSize={4.6} fill="#081C2D" />
+      <circle cx="50" cy="50" r="23" fill="#081C2D" />
       <text x="50" y="56" fontSize="17" fontFamily="'Times New Roman', Georgia, serif" fontWeight="bold" fill="#FFFFFF" textAnchor="middle">
         IAF
       </text>
@@ -90,11 +91,11 @@ function IAFSeal({ size = 52 }: { size?: number }) {
 function ISOSeal({ size = 50 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="idgl-seal-svg">
-      <circle cx="50" cy="50" r="46" stroke="#0C3866" strokeWidth="3.5" fill="#FFFFFF" />
-      <circle cx="50" cy="50" r="40" stroke="#0C3866" strokeWidth="1" fill="none" />
-      <CurvedTextTop text="CERTIFIED" radius={34} startAngle={-45} endAngle={45} fontSize={6.5} fill="#0C3866" />
-      <CurvedTextBottom text="COMPANY" radius={34} startAngle={135} endAngle={225} fontSize={6} fill="#0C3866" />
-      <circle cx="50" cy="50" r="24" fill="#0C3866" />
+      <circle cx="50" cy="50" r="46" stroke="#081C2D" strokeWidth="3.5" fill="#FFFFFF" />
+      <circle cx="50" cy="50" r="40" stroke="#081C2D" strokeWidth="1" fill="none" />
+      <CurvedTextTop text="CERTIFIED" radius={34} startAngle={-45} endAngle={45} fontSize={6.5} fill="#081C2D" />
+      <CurvedTextBottom text="COMPANY" radius={34} startAngle={135} endAngle={225} fontSize={6} fill="#081C2D" />
+      <circle cx="50" cy="50" r="24" fill="#081C2D" />
       <text x="50" y="48" fontSize="12" fontFamily="Arial, sans-serif" fontWeight="bold" fill="#FFFFFF" textAnchor="middle">
         ISO
       </text>
@@ -109,17 +110,17 @@ function ISOSeal({ size = 50 }: { size?: number }) {
 function IDGLLogoSeal({ size = 38 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="idgl-seal-svg">
-      <circle cx="50" cy="50" r="46" stroke="#0C3866" strokeWidth="2.5" fill="#FFFFFF" />
-      <CurvedTextTop text="INTERNATIONAL" radius={35} startAngle={-60} endAngle={60} fontSize={6.2} fill="#0C3866" />
-      <CurvedTextBottom text="DIAMOND & GEM LABORATORY" radius={35} startAngle={100} endAngle={260} fontSize={4.8} fill="#0C3866" />
-      <polygon points="50,26 65,40 50,70 35,40" fill="none" stroke="#0C3866" strokeWidth="2.2" />
-      <line x1="36" y1="40" x2="64" y2="40" stroke="#0C3866" strokeWidth="1.5" />
-      <line x1="50" y1="26" x2="50" y2="70" stroke="#0C3866" strokeWidth="1.5" />
+      <circle cx="50" cy="50" r="46" stroke="#081C2D" strokeWidth="2.5" fill="#FFFFFF" />
+      <CurvedTextTop text="INTERNATIONAL" radius={35} startAngle={-60} endAngle={60} fontSize={6.2} fill="#081C2D" />
+      <CurvedTextBottom text="DIAMOND & GEM LABORATORY" radius={35} startAngle={100} endAngle={260} fontSize={4.8} fill="#081C2D" />
+      <polygon points="50,26 65,40 50,70 35,40" fill="none" stroke="#081C2D" strokeWidth="2.2" />
+      <line x1="36" y1="40" x2="64" y2="40" stroke="#081C2D" strokeWidth="1.5" />
+      <line x1="50" y1="26" x2="50" y2="70" stroke="#081C2D" strokeWidth="1.5" />
     </svg>
   );
 }
 
-export default function DigitalBusinessCard({ cardId, orderId, showActions = true, className = '' }: DigitalBusinessCardProps) {
+export default function DigitalBusinessCard({ cardId, orderId, showActions = true, showSelector = true, className = '' }: DigitalBusinessCardProps) {
   const { settings } = useStore();
   const { orders } = useOrders();
   const { toast } = useUI();
@@ -168,29 +169,31 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
   return (
     <div className={`digital-business-card-wrapper ${className}`}>
       {/* Side View Selector Controls */}
-      <div className="idgl-view-selector">
-        <button
-          type="button"
-          className={`idgl-view-btn ${activeSide === 'both' ? 'active' : ''}`}
-          onClick={() => setActiveSide('both')}
-        >
-          <Eye size={13} /> DUAL SIDES (FRONT & BACK)
-        </button>
-        <button
-          type="button"
-          className={`idgl-view-btn ${activeSide === 'front' ? 'active' : ''}`}
-          onClick={() => setActiveSide('front')}
-        >
-          <RotateCw size={13} /> FRONT COVER
-        </button>
-        <button
-          type="button"
-          className={`idgl-view-btn ${activeSide === 'back' ? 'active' : ''}`}
-          onClick={() => setActiveSide('back')}
-        >
-          <RotateCw size={13} /> BACK REPORT
-        </button>
-      </div>
+      {showSelector && (
+        <div className="idgl-view-selector">
+          <button
+            type="button"
+            className={`idgl-view-btn ${activeSide === 'both' ? 'active' : ''}`}
+            onClick={() => setActiveSide('both')}
+          >
+            <Eye size={13} /> DUAL SIDES (FRONT & BACK)
+          </button>
+          <button
+            type="button"
+            className={`idgl-view-btn ${activeSide === 'front' ? 'active' : ''}`}
+            onClick={() => setActiveSide('front')}
+          >
+            <RotateCw size={13} /> FRONT COVER
+          </button>
+          <button
+            type="button"
+            className={`idgl-view-btn ${activeSide === 'back' ? 'active' : ''}`}
+            onClick={() => setActiveSide('back')}
+          >
+            <RotateCw size={13} /> BACK REPORT
+          </button>
+        </div>
+      )}
 
       {/* Visual IDGL Certificate Card Container */}
       <div id={elementId} className={`idgl-card-container side-${activeSide}`}>
@@ -303,11 +306,11 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
               <div className="idgl-qr-container">
                 <QRCodeSVG
                   value={url}
-                  size={76}
+                  size={64}
                   level="H"
                   marginSize={1}
                   bgColor="#FFFFFF"
-                  fgColor="#0C3866"
+                  fgColor="#081C2D"
                   title={`IDGL Certificate QR - ${cardId}`}
                 />
               </div>
@@ -315,7 +318,6 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
           </div>
         </div>
       </div>
-
       {/* Action Buttons */}
       {showActions && (
         <div className="business-card-actions">
