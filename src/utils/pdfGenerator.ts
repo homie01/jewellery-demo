@@ -40,20 +40,21 @@ export async function downloadDigitalBusinessCardPDF({ cardId, settings, element
       const backImg = backCanvas.toDataURL('image/png', 1.0);
 
       const cardWidth = 88.9;
-      const cardHeight = (frontCanvas.height * cardWidth) / frontCanvas.width;
+      const frontCardHeight = (frontCanvas.height * cardWidth) / frontCanvas.width;
+      const backCardHeight = (backCanvas.height * cardWidth) / backCanvas.width;
 
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
-        format: [cardWidth, cardHeight],
+        format: [cardWidth, frontCardHeight],
       });
 
       // PAGE 1: Front Cover of Card (Full resolution, 0 cropping)
-      pdf.addImage(frontImg, 'PNG', 0, 0, cardWidth, cardHeight);
+      pdf.addImage(frontImg, 'PNG', 0, 0, cardWidth, frontCardHeight);
 
       // PAGE 2: Back Certificate Report of Card (Full resolution, 0 cropping)
-      pdf.addPage([cardWidth, cardHeight], 'landscape');
-      pdf.addImage(backImg, 'PNG', 0, 0, cardWidth, cardHeight);
+      pdf.addPage([cardWidth, backCardHeight], 'landscape');
+      pdf.addImage(backImg, 'PNG', 0, 0, cardWidth, backCardHeight);
 
       pdf.save(`IDGL-Certificate-Card-${cardId}.pdf`);
       return;

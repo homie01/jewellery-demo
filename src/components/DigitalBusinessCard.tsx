@@ -311,6 +311,7 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
                   marginSize={1}
                   bgColor="#FFFFFF"
                   fgColor="#081C2D"
+                  className="idgl-qr-svg"
                   title={`IDGL Certificate QR - ${cardId}`}
                 />
               </div>
