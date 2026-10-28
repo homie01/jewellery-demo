@@ -414,12 +414,20 @@ export function VerifiedCard() {
 
       {/* IDGL Certificate Physical Card View */}
       <section style={{ margin: '2.5rem 0' }}>
-        <DigitalBusinessCard cardId={card.id} orderId={order.id} showSelector={false} showActions={false} />
+        <DigitalBusinessCard
+          cardId={card.id}
+          orderId={order.id}
+          productId={matchedProduct?.id || firstItem?.productId || defaultProduct?.id}
+          gem={gem}
+          clientName={partyName}
+          showSelector={false}
+          showActions={false}
+        />
       </section>
 
       {/* Featured Piece Quick Link Banner */}
       <div style={{ display: 'flex', justifyContent: 'center', margin: '-1rem 0 2rem' }}>
-        <ButtonLink to={`/product/${firstItem?.productId || 'pukhraj-yellow-sapphire-bracelet'}`} variant="outline">
+        <ButtonLink to={`/product/${matchedProduct?.id || firstItem?.productId || defaultProduct?.id || 'pukhraj-yellow-sapphire-bracelet'}`} variant="outline">
           VIEW FEATURED PIECE ON STORE <ArrowRight size={14} />
         </ButtonLink>
       </div>

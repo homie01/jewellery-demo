@@ -137,6 +137,8 @@ export default function AdminCreateOrder() {
           price: product.price,
           quantity,
           size: chosenSize,
+          stone: product.stone,
+          gemstoneDetails: product.gemstoneDetails,
         },
       ];
     });

@@ -3,7 +3,7 @@ import { findProduct, products } from '../data/products';
 import { defaultSettings, seedOrders } from '../data/demo';
 import { readStorage, secureId, usePersistentState, writeStorage } from '../lib/storage';
 import { demoOtpService } from '../services/demo';
-import type { CartItem, Customer, DigitalCard, Order, OrderStatus, PaymentMethod, Product, StoreSettings } from '../types';
+import type { CartItem, Customer, DigitalCard, GemstoneDetails, Order, OrderStatus, PaymentMethod, Product, StoreSettings } from '../types';
 
 const emptyCart: CartItem[] = [];
 const emptyStrings: string[] = [];
@@ -55,7 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 type NewOrder = { customer: Customer; items: CartItem[]; paymentMethod: PaymentMethod; deliveryMethod: 'Standard' | 'Express' };
 export type NewManualOrder = {
   customer: Customer;
-  items: Array<{ productId: string; name: string; image: string; price: number; quantity: number; size: string }>;
+  items: Array<{ productId: string; name: string; image: string; price: number; quantity: number; size: string; stone?: string; gemstoneDetails?: GemstoneDetails }>;
   paymentMethod: PaymentMethod;
   paymentStatus: 'Paid' | 'Pending';
   status: OrderStatus;
@@ -110,13 +110,21 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   }, [orders, catalog, setOrders]);
   const createManualOrder = useCallback((data: NewManualOrder): Order => {
     if (data.items.length === 0) throw new Error('Please select at least one piece for the order.');
-    const subtotal = data.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const items = data.items.map((item) => {
+      const product = catalog.find((p) => p.id === item.productId);
+      return {
+        ...item,
+        stone: item.stone || product?.stone,
+        gemstoneDetails: item.gemstoneDetails || product?.gemstoneDetails,
+      };
+    });
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shipping = data.deliveryMethod === 'Express' ? 499 : 0;
     const sequence = Math.max(125, ...orders.map((order) => Number(order.id.split('-').pop()) || 0)) + 1;
     const order: Order = {
       id: `ORD-${new Date().getFullYear()}-${String(sequence).padStart(5, '0')}`,
       customer: data.customer,
-      items: data.items,
+      items,
       subtotal,
       shipping,
       total: subtotal + shipping,
@@ -158,6 +166,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   const [cards, setCards] = usePersistentState('aurel.cards.v2', emptyCards);
   const [verified, setVerified] = useState<Record<string, number>>(() => readStorage('aurel.verified.v1', {}, sessionStorage));
   const { orders } = useOrders();
+  const { catalog } = useStore();
   useEffect(() => {
     const cancelled = new Set(orders.filter((order) => order.status === 'Cancelled').map((order) => order.id));
     if (cards.some((card) => card.status === 'Active' && cancelled.has(card.orderId))) {
@@ -165,10 +174,20 @@ export function CardProvider({ children }: { children: ReactNode }) {
     }
   }, [orders, cards, setCards]);
 
-  const makeCard = useCallback((orderId: string): DigitalCard => ({
-    id: secureId('CARD'), orderId, createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(), status: 'Active',
-  }), []);
+  const makeCard = useCallback((orderId: string): DigitalCard => {
+    const matchedOrder = orders.find((o) => o.id === orderId);
+    const firstItem = matchedOrder?.items?.[0];
+    const product = firstItem ? catalog.find((p) => p.id === firstItem.productId) : undefined;
+    return {
+      id: secureId('CARD'),
+      orderId,
+      productId: firstItem?.productId || product?.id,
+      gemstoneDetails: firstItem?.gemstoneDetails || product?.gemstoneDetails,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(),
+      status: 'Active',
+    };
+  }, [orders, catalog]);
 
   // Automatically generate digital business card once an order is confirmed
   useEffect(() => {

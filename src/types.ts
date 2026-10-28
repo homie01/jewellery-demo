@@ -107,6 +107,8 @@ export interface Order {
 export interface DigitalCard {
   id: string;
   orderId: string;
+  productId?: string;
+  gemstoneDetails?: GemstoneDetails;
   createdAt: string;
   expiresAt: string;
   status: 'Active' | 'Expired' | 'Revoked';

@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { Check, Copy, Download, ExternalLink, ShieldCheck, Eye, RotateCw } from 'lucide-react';
 import { cardUrl, useClipboard } from '../lib/storage';
-import { useStore, useOrders } from '../contexts/CommerceContext';
+import { useStore, useOrders, useCards } from '../contexts/CommerceContext';
 import { useUI } from '../contexts/UIContext';
 import { downloadDigitalBusinessCardPDF } from '../utils/pdfGenerator';
 import { Button, ButtonLink } from './ui';
@@ -11,6 +12,9 @@ import type { GemstoneDetails } from '../types';
 interface DigitalBusinessCardProps {
   cardId: string;
   orderId?: string;
+  productId?: string;
+  gem?: GemstoneDetails;
+  clientName?: string;
   showActions?: boolean;
   showSelector?: boolean;
   className?: string;
@@ -103,9 +107,23 @@ function IAFSeal({ size = 44 }: { size?: number }) {
   );
 }
 
-export default function DigitalBusinessCard({ cardId, orderId, showActions = true, showSelector = true, className = '' }: DigitalBusinessCardProps) {
+export default function DigitalBusinessCard({
+  cardId,
+  orderId,
+  productId: propProductId,
+  gem: propGem,
+  clientName: propClientName,
+  showActions = true,
+  showSelector = true,
+  className = ''
+}: DigitalBusinessCardProps) {
+  const [searchParams] = useSearchParams();
+  const urlProductParam = searchParams.get('product') || searchParams.get('p');
+  const urlClientParam = searchParams.get('client') || searchParams.get('c');
+
   const { settings, catalog } = useStore();
   const { orders } = useOrders();
+  const { cards } = useCards();
   const { toast } = useUI();
   const { copy, copied } = useClipboard();
   const [downloading, setDownloading] = useState(false);
@@ -113,18 +131,23 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
 
   const elementId = `business-card-node-${cardId}`;
 
-  // Find linked order for dynamic customer/piece specs
-  const order = orders.find((entry) => entry.id === orderId || entry.id === cardId);
+  // Find linked card and order for dynamic customer/piece specs
+  const card = cards.find((entry) => entry.id === cardId);
+  const effectiveOrderId = orderId || card?.orderId;
+  const order = orders.find((entry) => entry.id === effectiveOrderId || entry.id === cardId);
   const firstItem = order?.items?.[0];
-  const matchedProduct = firstItem ? catalog.find((p) => p.id === firstItem.productId) : catalog[0];
-  const featuredProduct = matchedProduct || catalog[0];
-  const featuredProductId = firstItem?.productId || featuredProduct?.id || 'pukhraj-yellow-sapphire-bracelet';
 
-  // Specific gemstone parameters (extracted from product or order item)
-  const gem: GemstoneDetails = firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || defaultGemstone;
+  // Resolve target product: prioritize prop -> order item -> card -> URL param -> catalog[0]
+  const targetProductId = propProductId || firstItem?.productId || card?.productId || urlProductParam;
+  const matchedProduct = targetProductId ? catalog.find((p) => p.id === targetProductId) : (firstItem ? catalog.find((p) => p.id === firstItem.productId) : catalog[0]);
+  const featuredProduct = matchedProduct || catalog[0];
+  const featuredProductId = featuredProduct?.id || 'pukhraj-yellow-sapphire-bracelet';
+
+  // Specific gemstone parameters: prioritize prop -> item -> card -> product -> default
+  const gem: GemstoneDetails = propGem || firstItem?.gemstoneDetails || card?.gemstoneDetails || featuredProduct?.gemstoneDetails || defaultGemstone;
 
   // Exact data fields matching the user's sample card image
-  const clientName = order?.customer?.name || 'Bhaveshbhai soni';
+  const clientName = propClientName || order?.customer?.name || urlClientParam || 'Bhaveshbhai soni';
   const summaryNo = cardId ? (cardId.length > 13 ? cardId.slice(0, 13) : cardId.padStart(13, '0')) : '0108261732001';
 
   // Target certificate record URL for the QR code: scanning directly opens the official certificate record!
