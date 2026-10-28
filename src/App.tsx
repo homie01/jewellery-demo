@@ -79,7 +79,7 @@ export default function App() {
       <Route path="settings" element={<AdminSettings />} />
     </Route>
     <Route path="card/:cardId" element={<CardLayout />}>
-      <Route index element={<CardVerification />} />
+      <Route index element={<VerifiedCard />} />
       <Route path="verify" element={<CardVerification />} />
       <Route path="verified" element={<VerifiedCard />} />
       <Route path="invalid" element={<InvalidCard />} />

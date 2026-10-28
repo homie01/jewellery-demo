@@ -48,7 +48,13 @@ export function secureId(prefix: string) {
   return `${prefix}-${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
 }
 
-export const cardUrl = (id: string) => new URL(`/card/${encodeURIComponent(id)}`, window.location.origin).href;
+export const cardUrl = (id: string, options?: { productId?: string; clientName?: string }) => {
+  const origin = typeof window !== 'undefined' && window.location ? window.location.origin : '';
+  const url = new URL(`/card/${encodeURIComponent(id)}`, origin || 'https://aurel.luxury');
+  if (options?.productId) url.searchParams.set('product', options.productId);
+  if (options?.clientName) url.searchParams.set('client', options.clientName);
+  return url.href;
+};
 
 export const productUrl = (id: string) => new URL(`/product/${encodeURIComponent(id)}`, window.location.origin).href;
 

@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import type { Order, StoreSettings, GemstoneDetails } from '../types';
-import { formatDate, money, productUrl, readStorage } from '../lib/storage';
+import { cardUrl, formatDate, money, readStorage } from '../lib/storage';
 import { findProduct } from '../data/products';
 import { seedOrders } from '../data/demo';
 
@@ -304,7 +304,7 @@ function buildDynamicCertificateElements(
   gem: GemstoneDetails,
   summaryNo: string,
   productUrlString: string,
-  productId: string
+  _productId?: string
 ): { front: HTMLElement; back: HTMLElement } {
   const front = document.createElement('div');
   front.id = `idgl-front-node-${cardId}`;
@@ -409,8 +409,8 @@ function buildDynamicCertificateElements(
           <p class="sample-blue-caption">IN GEMSTONE IDENTIFIED TO</p>
         </div>
         <div class="sample-front-qr-wrapper">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(productUrlString)}&color=081C2D&bgcolor=FFFFFF" style="width:36px;height:36px;display:block;" alt="Product QR" />
-          <span class="sample-qr-tag">SCAN PIECE</span>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(productUrlString)}&color=081C2D&bgcolor=FFFFFF" style="width:36px;height:36px;display:block;" alt="Certificate Record QR" />
+          <span class="sample-qr-tag">VERIFY CERTIFICATE</span>
         </div>
       </div>
     </div>
@@ -438,10 +438,10 @@ function buildDynamicCertificateElements(
       <div class="sample-back-main">
         <div class="sample-back-qr-block">
           <div class="sample-back-qr-frame">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(productUrlString)}&color=081C2D&bgcolor=FFFFFF" class="sample-back-qr-img" alt="Product QR" />
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(productUrlString)}&color=081C2D&bgcolor=FFFFFF" class="sample-back-qr-img" alt="Certificate Record QR" />
           </div>
-          <span class="sample-back-scan-callout">SCAN TO OPEN FEATURED PIECE</span>
-          <span class="sample-back-url-hint">aurel-jewellery.com/product/${productId}</span>
+          <span class="sample-back-scan-callout">SCAN TO VERIFY RECORD</span>
+          <span class="sample-back-url-hint">aurel-jewellery.com/card/${cardId}</span>
         </div>
         <div class="sample-back-info-block">
           <div class="sample-back-seals">
@@ -491,7 +491,7 @@ export async function downloadDigitalBusinessCardPDF(options: GenerateCardOption
   const gem: GemstoneDetails = options.gem || firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || defaultGemstone;
   const summaryNo = options.summaryNo || (cardId ? (cardId.length > 13 ? cardId.slice(0, 13) : cardId.padStart(13, '0')) : '0108261732001');
   const productId = options.productId || firstItem?.productId || matchedProduct?.id || 'pukhraj-yellow-sapphire-bracelet';
-  const targetProductUrl = options.productUrl || productUrl(productId);
+  const targetProductUrl = options.productUrl || cardUrl(cardId, { productId, clientName });
 
   // Setup offscreen standard staging container
   const staging = document.createElement('div');

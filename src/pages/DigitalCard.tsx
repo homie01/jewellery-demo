@@ -184,7 +184,8 @@ export function CardVerification() {
 
 export function VerifiedCard() {
   const { cardId } = useParams();
-  const { cards, isVerified, lockCard } = useCards();
+  const [searchParams] = useSearchParams();
+  const { cards, isVerified, lockCard, verifyCard } = useCards();
   const { orders } = useOrders();
   const { settings, catalog } = useStore();
   const [, updateTime] = useState(0);
@@ -199,6 +200,8 @@ export function VerifiedCard() {
     status: 'Active' as const,
   };
 
+  const isExplicitlyLocked = searchParams.get('locked') === 'true';
+
   useEffect(() => {
     const grant = readStorage<Record<string, number>>('aurel.verified.v1', {}, sessionStorage)[card.id] ?? Date.now();
     const expires = Math.min(grant, new Date(card.expiresAt).getTime());
@@ -206,13 +209,26 @@ export function VerifiedCard() {
     return () => window.clearTimeout(timer);
   }, [card]);
 
-  if (!isVerified(card.id)) return <Navigate to={`/card/${card.id}/verify`} replace />;
+  // If not locked and not yet verified in current session, auto-verify immediately so scanning QR opens the record
+  useEffect(() => {
+    if (!isExplicitlyLocked && !isVerified(card.id)) {
+      void verifyCard(card.id, '123456');
+    }
+  }, [card.id, isExplicitlyLocked, isVerified, verifyCard]);
 
-  const defaultProduct = catalog[0];
+  if (isExplicitlyLocked && !isVerified(card.id)) {
+    return <Navigate to={`/card/${card.id}/verify`} replace />;
+  }
+
+  const productParam = searchParams.get('product') || searchParams.get('p');
+  const clientParam = searchParams.get('client') || searchParams.get('c');
+  const matchedFromParam = productParam ? catalog.find((p) => p.id === productParam) : undefined;
+
+  const defaultProduct = matchedFromParam || catalog[0];
   const order = orders.find((entry) => entry.id === card.orderId) || {
     id: `ORD-${card.id}`,
     customer: {
-      name: 'Bhaveshbhai soni',
+      name: clientParam || 'Bhaveshbhai soni',
       email: 'bhavesh.soni@example.com',
       phone: '+91 98251 45678',
       address: '14, Mahavir Gem Complex, Mahidharpura',
@@ -244,8 +260,8 @@ export function VerifiedCard() {
   };
 
   const firstItem = order.items[0];
-  const matchedProduct = firstItem ? catalog.find((p) => p.id === firstItem.productId) : catalog[0];
-  const gem = firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || {
+  const matchedProduct = firstItem ? catalog.find((p) => p.id === firstItem.productId) : defaultProduct;
+  const gem = matchedFromParam?.gemstoneDetails || firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || {
     stoneName: 'NATURAL YELLOW SAPPHIRE',
     indianTradeName: 'Pukhraj(Guru)',
     colour: 'Yellow',
@@ -264,7 +280,7 @@ export function VerifiedCard() {
   };
 
   const certNo = card.id ? (card.id.length > 13 ? card.id.slice(0, 13) : card.id.padStart(13, '0')) : '0108261732001';
-  const partyName = order.customer?.name || 'Bhaveshbhai soni';
+  const partyName = clientParam || order.customer?.name || 'Bhaveshbhai soni';
   const resultText = gem.stoneName;
   const indianTradeNameText = gem.indianTradeName;
   const weightText = gem.caratWeight;
@@ -290,7 +306,7 @@ export function VerifiedCard() {
     >
       <div className="verified-card-top">
         <span><Check size={13} /> VERIFIED LAB RECORD</span>
-        <button onClick={() => { lockCard(card.id); navigate(`/card/${card.id}/verify`, { replace: true }); }}>
+        <button onClick={() => { lockCard(card.id); navigate(`/card/${card.id}/verify?locked=true`, { replace: true }); }}>
           <LockKeyhole size={12} /> LOCK THIS RECORD
         </button>
       </div>

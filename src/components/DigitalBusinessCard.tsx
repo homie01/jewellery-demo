@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Check, Copy, Download, ExternalLink, ShieldCheck, Eye, RotateCw } from 'lucide-react';
-import { productUrl, useClipboard } from '../lib/storage';
+import { cardUrl, useClipboard } from '../lib/storage';
 import { useStore, useOrders } from '../contexts/CommerceContext';
 import { useUI } from '../contexts/UIContext';
 import { downloadDigitalBusinessCardPDF } from '../utils/pdfGenerator';
@@ -123,12 +123,12 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
   // Specific gemstone parameters (extracted from product or order item)
   const gem: GemstoneDetails = firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || defaultGemstone;
 
-  // Target product URL for the QR code: scanning directly opens the featured piece!
-  const targetProductUrl = productUrl(featuredProductId);
-
   // Exact data fields matching the user's sample card image
   const clientName = order?.customer?.name || 'Bhaveshbhai soni';
   const summaryNo = cardId ? (cardId.length > 13 ? cardId.slice(0, 13) : cardId.padStart(13, '0')) : '0108261732001';
+
+  // Target certificate record URL for the QR code: scanning directly opens the official certificate record!
+  const certRecordUrl = cardUrl(cardId, { productId: featuredProductId, clientName });
 
   const handleDownloadPDF = async () => {
     try {
@@ -143,7 +143,7 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
         gem,
         summaryNo,
         productId: featuredProductId,
-        productUrl: targetProductUrl,
+        productUrl: certRecordUrl,
       });
       toast('Laboratory Gemstone Certificate Card PDF downloaded successfully.');
     } catch (err) {
@@ -312,19 +312,19 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
                 <p className="sample-blue-caption">IN GEMSTONE IDENTIFIED TO</p>
               </div>
 
-              {/* Scannable Product QR Code: Opens featured piece on scan */}
+              {/* Scannable Certificate Record QR Code: Opens laboratory certificate record on scan */}
               <div className="sample-front-qr-wrapper">
                 <QRCodeSVG
-                  value={targetProductUrl}
+                  value={certRecordUrl}
                   size={46}
                   level="M"
                   marginSize={1}
                   bgColor="#FFFFFF"
                   fgColor="#081C2D"
                   className="sample-front-qr-svg"
-                  title={`Scan to open ${featuredProduct.name}`}
+                  title="Scan to open official certificate record"
                 />
-                <span className="sample-qr-tag">SCAN PIECE</span>
+                <span className="sample-qr-tag">VERIFY CERTIFICATE</span>
               </div>
             </div>
           </div>
@@ -355,21 +355,21 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
 
             {/* Back Main Content */}
             <div className="sample-back-main">
-              {/* Left Column: QR Code & Product Link */}
+              {/* Left Column: QR Code & Certificate Link */}
               <div className="sample-back-qr-block">
                 <div className="sample-back-qr-frame">
                   <QRCodeSVG
-                    value={targetProductUrl}
+                    value={certRecordUrl}
                     size={76}
                     level="H"
                     marginSize={1}
                     bgColor="#FFFFFF"
                     fgColor="#081C2D"
                     className="sample-back-qr-img"
-                    title={`Scan to open ${featuredProduct.name}`}
+                    title="Scan to open official certificate record"
                   />
                 </div>
-                <span className="sample-back-scan-callout">SCAN TO OPEN FEATURED PIECE</span>
+                <span className="sample-back-scan-callout">SCAN TO VERIFY RECORD</span>
               </div>
 
               {/* Right Column: Accreditation Seals, Hologram & Disclaimer */}
@@ -426,15 +426,15 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
           <Button
             variant="outline"
             onClick={async () => {
-              if (await copy(targetProductUrl)) {
-                toast(`Product link for "${featuredProduct.name}" copied to clipboard!`);
+              if (await copy(certRecordUrl)) {
+                toast(`Certificate verification link copied to clipboard!`);
               } else {
                 toast('Please copy link manually.');
               }
             }}
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? 'LINK COPIED' : 'COPY PRODUCT LINK'}
+            {copied ? 'LINK COPIED' : 'COPY RECORD LINK'}
           </Button>
 
           <ButtonLink
@@ -459,7 +459,7 @@ export default function DigitalBusinessCard({ cardId, orderId, showActions = tru
 
       <div className="card-notice">
         <ShieldCheck size={14} />
-        <span>Official International Gems & Diamond Testing Laboratory Certificate Card with Scannable QR linked directly to the featured jewellery piece.</span>
+        <span>Official International Gems & Diamond Testing Laboratory Certificate Card with Scannable QR linked directly to the official certificate verification record.</span>
       </div>
     </div>
   );
