@@ -15,7 +15,7 @@ export default function Shop() {
   const collection = params.get('collection') ?? '';
   const material = params.get('material') ?? '';
   const search = params.get('q') ?? '';
-  const maxPrice = Number(params.get('price')) || 60000;
+  const maxPrice = Number(params.get('price')) || 100000;
   const onlyAvailable = params.get('available') === '1';
   const isNew = params.get('new') === '1';
   const isSaved = params.get('saved') === '1';
@@ -28,7 +28,7 @@ export default function Shop() {
       (category === 'All Jewellery' || product.category === category) &&
       (!collection || product.collection === collection) &&
       (!material || product.material === material) &&
-      (!search || `${product.name} ${product.category} ${product.material}`.toLowerCase().includes(search.toLowerCase())) &&
+      (!search || `${product.name} ${product.category} ${product.material} ${product.stone}`.toLowerCase().includes(search.toLowerCase())) &&
       product.price <= maxPrice && (!onlyAvailable || product.available) && (!isNew || product.isNew) && (!isSaved || wishlist.includes(product.id)),
     );
     if (sort === 'price-low') result.sort((a, b) => a.price - b.price);

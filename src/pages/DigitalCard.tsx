@@ -186,7 +186,7 @@ export function VerifiedCard() {
   const { cardId } = useParams();
   const { cards, isVerified, lockCard } = useCards();
   const { orders } = useOrders();
-  const { settings } = useStore();
+  const { settings, catalog } = useStore();
   const [, updateTime] = useState(0);
   const navigate = useNavigate();
 
@@ -208,30 +208,33 @@ export function VerifiedCard() {
 
   if (!isVerified(card.id)) return <Navigate to={`/card/${card.id}/verify`} replace />;
 
+  const defaultProduct = catalog[0];
   const order = orders.find((entry) => entry.id === card.orderId) || {
     id: `ORD-${card.id}`,
     customer: {
-      name: 'To whom it may concern',
-      email: 'care@aurel-jewellery.com',
-      phone: '+91 261 555 0188',
-      address: 'Ghod Dod Road',
+      name: 'Bhaveshbhai soni',
+      email: 'bhavesh.soni@example.com',
+      phone: '+91 98251 45678',
+      address: '14, Mahavir Gem Complex, Mahidharpura',
       city: 'Surat',
       state: 'Gujarat',
-      pincode: '395007'
+      pincode: '395003'
     },
     items: [
       {
-        productId: 'P-01',
-        name: 'NATURAL EMERALD',
-        image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400',
-        price: 125000,
+        productId: defaultProduct?.id || 'pukhraj-yellow-sapphire-bracelet',
+        name: defaultProduct?.name || 'Pukhraj Yellow Sapphire Imperial Bracelet',
+        image: defaultProduct?.image || '/images/gemstones/yellow-sapphire-bracelet.jpg',
+        price: defaultProduct?.price || 48500,
         quantity: 1,
-        size: 'Standard'
+        size: 'Medium (7.0 in)',
+        stone: defaultProduct?.stone || 'Natural Yellow Sapphire (Pukhraj), 5.06 ct',
+        gemstoneDetails: defaultProduct?.gemstoneDetails,
       }
     ],
-    subtotal: 125000,
+    subtotal: defaultProduct?.price || 48500,
     shipping: 0,
-    total: 125000,
+    total: defaultProduct?.price || 48500,
     date: new Date().toISOString(),
     paymentMethod: 'UPI' as const,
     paymentStatus: 'Paid' as const,
@@ -241,20 +244,42 @@ export function VerifiedCard() {
   };
 
   const firstItem = order.items[0];
+  const matchedProduct = firstItem ? catalog.find((p) => p.id === firstItem.productId) : catalog[0];
+  const gem = firstItem?.gemstoneDetails || matchedProduct?.gemstoneDetails || {
+    stoneName: 'NATURAL YELLOW SAPPHIRE',
+    indianTradeName: 'Pukhraj(Guru)',
+    colour: 'Yellow',
+    caratWeight: '5.06ct',
+    measurement: '10.10x9.60x3.80mm',
+    shapeCut: 'Oval Mix Cut',
+    mounted: 'Mounted in Bracelet',
+    refractiveIndex: '1.76-1.77',
+    specificGravity: '3.96-4.05',
+    hardness: '9.00',
+    uvTest: 'N.A',
+    microscopicObs: 'Typical Of Sapphire',
+    spectroscopicObs: 'Typical Of Natural',
+    comment: 'N.A',
+    specimenImage: '/images/gemstones/yellow-sapphire-gem.jpg',
+  };
+
   const certNo = card.id ? (card.id.length > 13 ? card.id.slice(0, 13) : card.id.padStart(13, '0')) : '0108261732001';
-  const partyName = order.customer?.name || 'To whom it may concern';
-  const resultText = firstItem?.name ? firstItem.name.toUpperCase() : 'NATURAL MULTI STONES (BRACELET)';
-  const weightText = '6.14 carats';
-  const colorText = 'GREEN';
-  const cutShapeText = 'OVAL MIX';
-  const dimensionsText = '13.23 x 11.04 x 5.27 mm';
-  const mountingStatsText = 'Studded';
-  const riText = '1.57 - 1.58';
-  const sgText = '2.67 - 2.78';
-  const microObsText = 'Color zoning liquid & surface markings';
-  const hardnessText = '7.5 (Ref. mohs scale)';
-  const remarksText = 'Observation confirmed natural formation';
-  const commentsText = firstItem?.name ? firstItem.name.toUpperCase() : 'AUREL HEIRLOOM COLLECTION';
+  const partyName = order.customer?.name || 'Bhaveshbhai soni';
+  const resultText = gem.stoneName;
+  const indianTradeNameText = gem.indianTradeName;
+  const weightText = gem.caratWeight;
+  const colorText = gem.colour;
+  const cutShapeText = gem.shapeCut;
+  const dimensionsText = gem.measurement;
+  const mountingStatsText = gem.mounted;
+  const riText = gem.refractiveIndex;
+  const sgText = gem.specificGravity;
+  const hardnessText = `${gem.hardness} (Mohs Scale)`;
+  const uvText = gem.uvTest;
+  const microObsText = gem.microscopicObs;
+  const spectroText = gem.spectroscopicObs;
+  const remarksText = gem.comment !== 'N.A' ? gem.comment : 'Observation confirmed natural formation';
+  const commentsText = `Certified ${gem.stoneName} Handcrafted Bracelet`;
 
   return (
     <motion.div
@@ -264,19 +289,33 @@ export function VerifiedCard() {
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="verified-card-top">
-        <span><Check size={13} /> VERIFIED ACCESS</span>
+        <span><Check size={13} /> VERIFIED LAB RECORD</span>
         <button onClick={() => { lockCard(card.id); navigate(`/card/${card.id}/verify`, { replace: true }); }}>
           <LockKeyhole size={12} /> LOCK THIS RECORD
         </button>
       </div>
 
-      {/* Verified Report Container Box (Matching exact attached demo design) */}
+      {/* Verified Report Container Box */}
       <div className="report-verified-container">
-        <h1 className="report-verified-heading">Report Verified successfully</h1>
+        <h1 className="report-verified-heading">International Gems & Diamond Testing Laboratory</h1>
+        <p style={{ textAlign: 'center', color: '#1d70b8', fontWeight: 600, fontSize: '0.82rem', margin: '-0.5rem 0 1.25rem' }}>
+          Official Gemological Report Verified Successfully
+        </p>
 
-        {/* Product Image Box */}
-        <div className="report-verified-img-box">
-          <img src={firstItem?.image || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400'} alt="Verified Item" />
+        {/* Dual Images: Cut Gemstone Specimen & Bracelet */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', alignItems: 'center', margin: '0 auto 1.5rem', flexWrap: 'wrap' }}>
+          <div className="report-verified-img-box" style={{ width: '180px', height: '180px' }}>
+            <img src={gem.specimenImage} alt={`${gem.stoneName} Specimen`} style={{ objectFit: 'contain', padding: '10px' }} />
+            <span style={{ display: 'block', fontSize: '0.62rem', fontWeight: 700, color: '#1d70b8', textAlign: 'center', marginTop: '4px' }}>
+              SUBMITTED GEM SPECIMEN
+            </span>
+          </div>
+          <div className="report-verified-img-box" style={{ width: '180px', height: '180px' }}>
+            <img src={firstItem?.image || matchedProduct?.image || '/images/gemstones/yellow-sapphire-bracelet.jpg'} alt="Finished Bracelet" style={{ objectFit: 'cover' }} />
+            <span style={{ display: 'block', fontSize: '0.62rem', fontWeight: 700, color: '#1F7A63', textAlign: 'center', marginTop: '4px' }}>
+              FINISHED BRACELET MOUNTING
+            </span>
+          </div>
         </div>
 
         {/* Accreditation Seals Banner (ISO, IAF, IAS) */}
@@ -290,55 +329,67 @@ export function VerifiedCard() {
               <td className="report-table-val font-bold">{certNo}</td>
             </tr>
             <tr>
-              <td className="report-table-label">On Behalf Of</td>
+              <td className="report-table-label">Clients Name</td>
               <td className="report-table-val font-bold">{partyName}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Result :</td>
-              <td className="report-table-val">{resultText}</td>
+              <td className="report-table-label">Result / Stone :</td>
+              <td className="report-table-val" style={{ color: '#dc2626', fontWeight: 800, fontSize: '0.95rem' }}>{resultText}</td>
+            </tr>
+            <tr>
+              <td className="report-table-label">Indian Trade Name :</td>
+              <td className="report-table-val font-bold" style={{ color: '#1d70b8' }}>{indianTradeNameText}</td>
             </tr>
             <tr>
               <td className="report-table-label">Weight :</td>
               <td className="report-table-val">{weightText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Color :</td>
+              <td className="report-table-label">Colour :</td>
               <td className="report-table-val">{colorText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Cut &Shape :</td>
+              <td className="report-table-label">Shape & Cut :</td>
               <td className="report-table-val">{cutShapeText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Dimensions :</td>
+              <td className="report-table-label">Measurement-Approx :</td>
               <td className="report-table-val">{dimensionsText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Mounting Stats :</td>
+              <td className="report-table-label">Mounted/Unmounted :</td>
               <td className="report-table-val">{mountingStatsText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">R.I. :</td>
+              <td className="report-table-label">Refractive Index :</td>
               <td className="report-table-val">{riText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">S.G. :</td>
+              <td className="report-table-label">Specific Gravity :</td>
               <td className="report-table-val">{sgText}</td>
-            </tr>
-            <tr>
-              <td className="report-table-label">Micro Obs. :</td>
-              <td className="report-table-val">{microObsText}</td>
             </tr>
             <tr>
               <td className="report-table-label">Hardness :</td>
               <td className="report-table-val">{hardnessText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Remarks :</td>
+              <td className="report-table-label">U.V. Test :</td>
+              <td className="report-table-val">{uvText}</td>
+            </tr>
+            <tr>
+              <td className="report-table-label">Microscopic Obs :</td>
+              <td className="report-table-val">{microObsText}</td>
+            </tr>
+            <tr>
+              <td className="report-table-label">Spectroscopic Obs :</td>
+              <td className="report-table-val">{spectroText}</td>
+            </tr>
+            <tr>
+              <td className="report-table-label">Comment :</td>
               <td className="report-table-val">{remarksText}</td>
             </tr>
             <tr>
-              <td className="report-table-label">Comments :</td>
+              <td className="report-table-label">Identification Summary :</td>
               <td className="report-table-val">{commentsText}</td>
             </tr>
           </tbody>
@@ -349,6 +400,13 @@ export function VerifiedCard() {
       <section style={{ margin: '2.5rem 0' }}>
         <DigitalBusinessCard cardId={card.id} orderId={order.id} showSelector={false} showActions={false} />
       </section>
+
+      {/* Featured Piece Quick Link Banner */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '-1rem 0 2rem' }}>
+        <ButtonLink to={`/product/${firstItem?.productId || 'pukhraj-yellow-sapphire-bracelet'}`} variant="outline">
+          VIEW FEATURED PIECE ON STORE <ArrowRight size={14} />
+        </ButtonLink>
+      </div>
 
       {/* Purchase Invoice & Order Section */}
       <article className="purchase-certificate">
@@ -376,15 +434,17 @@ export function VerifiedCard() {
               <div><span>PURCHASE DATE</span><strong>{formatDate(order.date, true)}</strong></div>
             </div>
             {order.items.map((item, index) => (
-              <div className="certificate-product" key={`${item.productId}-${index}`}>
+              <Link to={`/product/${item.productId}`} className="certificate-product" key={`${item.productId}-${index}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <img src={item.image} alt={item.name} />
                 <div>
                   <h3>{item.name}</h3>
                   <p>Quantity {item.quantity} / Size {item.size}</p>
-                  <span>18K GOLD / THE AUREL COLLECTION</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#1F7A63' }}>
+                    VIEW PRODUCT PIECE ON STORE <ArrowRight size={11} />
+                  </span>
                 </div>
                 <strong>{money(item.price * item.quantity)}</strong>
-              </div>
+              </Link>
             ))}
           </section>
           <section className="certificate-payment">

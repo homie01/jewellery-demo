@@ -50,6 +50,8 @@ export function secureId(prefix: string) {
 
 export const cardUrl = (id: string) => new URL(`/card/${encodeURIComponent(id)}`, window.location.origin).href;
 
+export const productUrl = (id: string) => new URL(`/product/${encodeURIComponent(id)}`, window.location.origin).href;
+
 export function useClipboard() {
   const [copied, setCopied] = useState(false);
   useEffect(() => {

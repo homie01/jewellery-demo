@@ -1,4 +1,22 @@
-export type Category = 'Rings' | 'Necklaces' | 'Earrings' | 'Bracelets' | 'Bangles';
+export type Category = 'Bracelets' | 'Bangles' | 'Rings' | 'Necklaces' | 'Earrings';
+
+export interface GemstoneDetails {
+  stoneName: string; // e.g. "NATURAL YELLOW SAPPHIRE"
+  indianTradeName: string; // e.g. "Pukhraj(Guru)"
+  colour: string; // e.g. "Yellow"
+  caratWeight: string; // e.g. "5.06ct"
+  measurement: string; // e.g. "10.10x9.60x3.80mm"
+  shapeCut: string; // e.g. "Oval Mix Cut"
+  mounted: string; // e.g. "Mounted in Bracelet"
+  refractiveIndex: string; // e.g. "1.76-1.77"
+  specificGravity: string; // e.g. "3.96-4.05"
+  hardness: string; // e.g. "9.00"
+  uvTest: string; // e.g. "N.A"
+  microscopicObs: string; // e.g. "Typical Of Sapphire"
+  spectroscopicObs: string; // e.g. "Typical Of Natural"
+  comment: string; // e.g. "N.A"
+  specimenImage: string; // image of cut gemstone specimen
+}
 
 export interface Product {
   id: string;
@@ -6,8 +24,8 @@ export interface Product {
   category: Category;
   price: number;
   image: string;
-  collection: 'Signature' | 'Everyday Heirlooms' | 'The Pearl Edit';
-  material: '18K Gold' | 'Gold & Pearl' | 'Gold & Diamond';
+  collection: 'Signature' | 'Everyday Heirlooms' | 'The Pearl Edit' | string;
+  material: string;
   description: string;
   weight: string;
   stone: string;
@@ -15,6 +33,7 @@ export interface Product {
   available: boolean;
   isNew?: boolean;
   featured?: boolean;
+  gemstoneDetails: GemstoneDetails;
 }
 
 export interface CartItem {
@@ -31,6 +50,8 @@ export interface OrderItem {
   price: number;
   quantity: number;
   size: string;
+  stone?: string;
+  gemstoneDetails?: GemstoneDetails;
 }
 
 export interface Customer {

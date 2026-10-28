@@ -25,8 +25,8 @@ interface CartValue {
 const CartContext = createContext<CartValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [storedItems, setItems] = usePersistentState('aurel.cart.v1', emptyCart);
-  const [wishlist, setWishlist] = usePersistentState('aurel.wishlist.v1', emptyStrings);
+  const [storedItems, setItems] = usePersistentState('aurel.cart.v2', emptyCart);
+  const [wishlist, setWishlist] = usePersistentState('aurel.wishlist.v2', emptyStrings);
   const { catalog } = useStore();
   const items = useMemo(() => storedItems.filter((item) => findProduct(item.productId) && item.quantity > 0), [storedItems]);
   const addItem = useCallback((product: Product, quantity = 1, size = product.sizes[0]) => {
@@ -75,7 +75,7 @@ interface OrderValue {
 const OrderContext = createContext<OrderValue | null>(null);
 
 export function OrderProvider({ children }: { children: ReactNode }) {
-  const [orders, setOrders] = usePersistentState('aurel.orders.v1', seedOrders);
+  const [orders, setOrders] = usePersistentState('aurel.orders.v2', seedOrders);
   const { catalog } = useStore();
   const createOrder = useCallback((data: NewOrder): Order => {
     if (data.items.length === 0) throw new Error('Please add a piece to your bag first.');
@@ -83,7 +83,16 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       const product = catalog.find((entry) => entry.id === item.productId);
       if (!product || !product.available) throw new Error('A piece in your bag is no longer available.');
       if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 10) throw new Error('Please choose a quantity between 1 and 10.');
-      return { productId: product.id, name: product.name, image: product.image, price: product.price, quantity: item.quantity, size: item.size };
+      return {
+        productId: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        quantity: item.quantity,
+        size: item.size,
+        stone: product.stone,
+        gemstoneDetails: product.gemstoneDetails,
+      };
     });
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shipping = data.deliveryMethod === 'Express' ? 499 : 0;
@@ -146,7 +155,7 @@ interface CardValue {
 const CardContext = createContext<CardValue | null>(null);
 
 export function CardProvider({ children }: { children: ReactNode }) {
-  const [cards, setCards] = usePersistentState('aurel.cards.v1', emptyCards);
+  const [cards, setCards] = usePersistentState('aurel.cards.v2', emptyCards);
   const [verified, setVerified] = useState<Record<string, number>>(() => readStorage('aurel.verified.v1', {}, sessionStorage));
   const { orders } = useOrders();
   useEffect(() => {
@@ -235,7 +244,7 @@ const emptyOverrides: Record<string, Partial<Product>> = {};
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [settings, saveSettings] = usePersistentState('aurel.settings.v1', defaultSettings);
-  const [overrides, setOverrides] = usePersistentState('aurel.products.v1', emptyOverrides);
+  const [overrides, setOverrides] = usePersistentState('aurel.products.v2', emptyOverrides);
   const catalog = useMemo(() => products.map((product) => ({ ...product, ...overrides[product.id] })), [overrides]);
   const updateProduct = (product: Product) => setOverrides((current) => ({ ...current, [product.id]: product }));
   return <StoreContext.Provider value={{ settings, saveSettings, catalog, updateProduct }}>{children}</StoreContext.Provider>;
